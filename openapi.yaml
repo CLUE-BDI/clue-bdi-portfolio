@@ -1,0 +1,170 @@
+openapi: 3.0.3
+info:
+  title: CLUE BDI Portfolio API
+  version: 1.0.0
+  description: API for the CLUE BDI portfolio application, serving projects, metrics, and security posture data.
+servers:
+  - url: /api/v1
+paths:
+  /auth/register:
+    post:
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+  /auth/login:
+    post:
+      summary: Log in a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: User logged in successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: Invalid credentials
+  /projects:
+    get:
+      summary: Get all portfolio projects
+      responses:
+        '200':
+          description: A list of projects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Project'
+  /metrics:
+    get:
+      summary: Get portfolio metrics
+      responses:
+        '200':
+          description: A list of metrics
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Metric'
+  /security/posture:
+    get:
+      summary: Get security posture overview
+      responses:
+        '200':
+          description: A list of security posture metrics
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Posture'
+
+components:
+  schemas:
+    RegisterRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        fullName:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+        accountType:
+          type: string
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+    AuthResponse:
+      type: object
+      properties:
+        token:
+          type: string
+        user:
+          type: object
+          properties:
+            id:
+              type: string
+            email:
+              type: string
+            fullName:
+              type: string
+    Project:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        category:
+          type: string
+          enum: [DevSecOps, Data Engineering, Cloud]
+        status:
+          type: string
+        description:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        links:
+          type: array
+          items:
+            type: object
+            properties:
+              label:
+                type: string
+              href:
+                type: string
+    Metric:
+      type: object
+      properties:
+        id:
+          type: string
+        value:
+          type: string
+        label:
+          type: string
+    Posture:
+      type: object
+      properties:
+        id:
+          type: string
+        label:
+          type: string
+        note:
+          type: string
+        value:
+          type: integer
