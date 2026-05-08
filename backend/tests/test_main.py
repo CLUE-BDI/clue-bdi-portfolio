@@ -1,33 +1,27 @@
-import pytest
-from fastapi.testclient import TestClient
-from app.main import app
-
-client = TestClient(app)
-
-def test_read_main():
+def test_read_main(client):
     response = client.get("/")
     assert response.status_code == 200
     assert response.json() == {"message": "Welcome to CLUE BDI Portfolio API"}
 
-def test_get_projects():
+def test_get_projects(client):
     response = client.get("/api/v1/projects")
     assert response.status_code == 200
     assert isinstance(response.json(), list)
     assert len(response.json()) > 0
 
-def test_get_metrics():
+def test_get_metrics(client):
     response = client.get("/api/v1/metrics")
     assert response.status_code == 200
     assert isinstance(response.json(), list)
     assert len(response.json()) > 0
 
-def test_get_posture():
+def test_get_posture(client):
     response = client.get("/api/v1/security/posture")
     assert response.status_code == 200
     assert isinstance(response.json(), list)
     assert len(response.json()) > 0
 
-def test_register_and_login():
+def test_register_and_login(client):
     # Register
     register_data = {
         "email": "newuser@example.com",
@@ -47,7 +41,7 @@ def test_register_and_login():
     assert login_response.status_code == 200
     assert login_response.json()["token"] == "mock-jwt-token"
 
-def test_login_invalid_credentials():
+def test_login_invalid_credentials(client):
     login_data = {
         "email": "nonexistent@example.com",
         "password": "wrongpassword"

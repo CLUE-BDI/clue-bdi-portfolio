@@ -11,4 +11,6 @@ dependencies = [
     "pytest",
     "httpx",
     "email-validator",
+    "sqlalchemy",
+    "psycopg2-binary",
 ]

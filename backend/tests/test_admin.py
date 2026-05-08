@@ -1,10 +1,4 @@
-import pytest
-from fastapi.testclient import TestClient
-from app.main import app
-
-client = TestClient(app)
-
-def test_get_users():
+def test_get_users(client):
     response = client.get("/api/v1/admin/users")
     assert response.status_code == 200
     users = response.json()
@@ -23,7 +17,7 @@ def test_get_users():
     assert "accountType" in admin
     assert admin["accountType"] == "Staff"
 
-def test_login_returns_account_type():
+def test_login_returns_account_type(client):
     login_data = {
         "email": "admin@cluebdi.com",
         "password": "password123"

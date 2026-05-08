@@ -1,8 +1,13 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .routers import auth, projects, metrics, posture, admin
+from .init_db import init_db
 
 app = FastAPI(title="CLUE BDI Portfolio API", version="1.0.0")
+
+@app.on_event("startup")
+async def startup_event():
+    init_db()
 
 # Enable CORS
 app.add_middleware(
