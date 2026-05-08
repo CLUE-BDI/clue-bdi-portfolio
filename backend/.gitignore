@@ -13,3 +13,5 @@ env
 .env.local
 uv.lock
 .venv
+*.db
+*.db-journal
