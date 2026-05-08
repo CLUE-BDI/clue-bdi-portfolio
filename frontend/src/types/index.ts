@@ -1,5 +1,16 @@
 export type Category = "DevSecOps" | "Data Engineering" | "Cloud";
 
+export interface UserProfile {
+  id: string;
+  email: string;
+  fullName?: string;
+}
+
+export interface AuthResponse {
+  token: string;
+  user: UserProfile;
+}
+
 export interface ProjectLink {
   label: string;
   href: string;
@@ -26,27 +37,4 @@ export interface Posture {
   label: string;
   note: string;
   value: number;
-}
-
-export interface UserProfile {
-  id: string;
-  email: string;
-  fullName?: string;
-}
-
-export interface AuthResponse {
-  token: string;
-  user: UserProfile;
-}
-
-export interface RegisterRequest {
-  fullName?: string;
-  email: string;
-  password: string;
-  accountType?: string;
-}
-
-export interface LoginRequest {
-  email: string;
-  password: string;
 }

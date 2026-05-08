@@ -1,24 +1,24 @@
 import { useQuery } from "@tanstack/react-query";
-import { apiClient } from "../lib/api-client";
-import { Project, Metric, Posture } from "../types/api";
+import { api } from "@/lib/api";
+import { Project, Metric, Posture } from "@/types";
 
 export const useProjects = () => {
   return useQuery({
     queryKey: ["projects"],
-    queryFn: () => apiClient.get<Project[]>("/projects"),
+    queryFn: () => api.get<Project[]>("/projects"),
   });
 };
 
 export const useMetrics = () => {
   return useQuery({
     queryKey: ["metrics"],
-    queryFn: () => apiClient.get<Metric[]>("/metrics"),
+    queryFn: () => api.get<Metric[]>("/metrics"),
   });
 };
 
 export const usePosture = () => {
   return useQuery({
     queryKey: ["posture"],
-    queryFn: () => apiClient.get<Posture[]>("/security/posture"),
+    queryFn: () => api.get<Posture[]>("/security/posture"),
   });
 };

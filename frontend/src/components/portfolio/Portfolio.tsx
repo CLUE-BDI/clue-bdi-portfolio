@@ -1,7 +1,7 @@
 import { FormEvent, ReactNode, useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useProjects, useMetrics, usePosture } from "@/hooks/use-portfolio-data";
-import { Project, Category } from "@/types/api";
+import { useProjects, useMetrics, usePosture } from "@/hooks/usePortfolio";
+import { Project, Metric, Posture, Category } from "@/types";
 
 /* ---------------- Data ---------------- */
 
@@ -15,13 +15,8 @@ const NAV_ITEMS = [
 
 const SKILLS = ["AWS", "Kubernetes", "Terraform", "GitLab CI", "Python", "BigQuery"];
 
-// Metrics and Projects are now fetched from the backend
-
-// Types are now imported from @/types/api
-
 const CATEGORIES = ["All", "DevSecOps", "Data Engineering", "Cloud"] as const;
 
-// Hardcoded data for items not in the backend
 const ARCH_STEPS = [
   { title: "Commit", text: "Developer pushes code" },
   { title: "CI/CD", text: "Scan, build, deploy" },
@@ -53,7 +48,9 @@ const ACCOUNT_TYPES = [
   "Client / Partner",
 ];
 
-// Assertions removed as they rely on static data
+/* ---------------- Validation ---------------- */
+/* Data validation removed as data is now dynamic */
+
 /* ---------------- Icons (inline SVG) ---------------- */
 
 const Icon = ({ name, className = "h-4 w-4" }: { name: string; className?: string }) => {
@@ -254,15 +251,14 @@ const AuthModal = ({
 }) => {
   const [tab, setTab] = useState<"login" | "signup">(initialTab);
   const { login, register } = useAuth();
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-    fullName: "",
-    accountType: ACCOUNT_TYPES[0],
-  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (open) setTab(initialTab);
+    if (open) {
+      setTab(initialTab);
+      setError(null);
+    }
   }, [open, initialTab]);
 
   useEffect(() => {
@@ -275,20 +271,26 @@ const AuthModal = ({
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    setLoading(true);
+    setError(null);
+
+    const formData = new FormData(e.target as HTMLFormElement);
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+
     try {
       if (tab === "login") {
-        await login({ email: formData.email, password: formData.password });
+        await login(email, password);
       } else {
-        await register({
-          email: formData.email,
-          password: formData.password,
-          fullName: formData.fullName,
-          accountType: formData.accountType,
-        });
+        const fullName = formData.get("fullName") as string;
+        const accountType = formData.get("accountType") as string;
+        await register({ email, password, fullName, accountType });
       }
       onClose();
-    } catch (err) {
-      // Error handled in AuthContext
+    } catch (err: any) {
+      setError(err.message || "An error occurred");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -335,19 +337,19 @@ const AuthModal = ({
           ))}
         </div>
 
+        {error && (
+          <div className="mb-4 rounded-lg bg-destructive/10 p-3 text-xs text-destructive">
+            {error}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-4">
           {tab === "signup" && (
             <div>
               <label className="mb-1 block text-xs font-medium text-muted-foreground">
                 Full name
               </label>
-              <input
-                className={inputClass}
-                placeholder="Jane Doe"
-                required
-                value={formData.fullName}
-                onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-              />
+              <input name="fullName" className={inputClass} placeholder="Jane Doe" required />
             </div>
           )}
           <div>
@@ -355,12 +357,11 @@ const AuthModal = ({
               Email
             </label>
             <input
+              name="email"
               type="email"
               className={inputClass}
               placeholder="you@company.com"
               required
-              value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
             />
           </div>
           <div>
@@ -368,12 +369,11 @@ const AuthModal = ({
               Password
             </label>
             <input
+              name="password"
               type="password"
               className={inputClass}
               placeholder="••••••••"
               required
-              value={formData.password}
-              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
             />
           </div>
           {tab === "signup" && (
@@ -381,11 +381,7 @@ const AuthModal = ({
               <label className="mb-1 block text-xs font-medium text-muted-foreground">
                 Account type
               </label>
-              <select
-                className={inputClass}
-                value={formData.accountType}
-                onChange={(e) => setFormData({ ...formData, accountType: e.target.value })}
-              >
+              <select name="accountType" className={inputClass} defaultValue={ACCOUNT_TYPES[0]}>
                 {ACCOUNT_TYPES.map((a) => (
                   <option key={a} value={a} className="bg-card">
                     {a}
@@ -394,13 +390,13 @@ const AuthModal = ({
               </select>
             </div>
           )}
-          <Button type="submit" variant="primary" size="lg" className="w-full">
-            {tab === "login" ? "Sign in" : "Create account"}
+          <Button type="submit" variant="primary" size="lg" className="w-full" onClick={() => {}}>
+            {loading ? "Processing..." : tab === "login" ? "Sign in" : "Create account"}
           </Button>
         </form>
 
         <p className="mt-4 text-center text-[11px] leading-relaxed text-muted-foreground">
-          Connected to CLUE BDI API. Enter your credentials to access the portfolio dashboard.
+          Connected to CLUE BDI Portfolio Backend.
         </p>
       </div>
     </div>
@@ -417,6 +413,8 @@ const Header = ({
   onSignup: () => void;
 }) => {
   const [open, setOpen] = useState(false);
+  const { user, logout } = useAuth();
+
   return (
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background/80 backdrop-blur-xl">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
@@ -445,12 +443,25 @@ const Header = ({
         </nav>
 
         <div className="hidden items-center gap-2 md:flex">
-          <Button variant="ghost" size="sm" onClick={onLogin}>
-            Login
-          </Button>
-          <Button variant="secondary" size="sm" onClick={onSignup}>
-            Sign Up
-          </Button>
+          {user ? (
+            <>
+              <span className="mr-2 text-sm font-medium text-muted-foreground">
+                Hi, {user.fullName || user.email.split("@")[0]}
+              </span>
+              <Button variant="ghost" size="sm" onClick={logout}>
+                Logout
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button variant="ghost" size="sm" onClick={onLogin}>
+                Login
+              </Button>
+              <Button variant="secondary" size="sm" onClick={onSignup}>
+                Sign Up
+              </Button>
+            </>
+          )}
           <Button variant="primary" size="sm">
             <Icon name="download" className="h-4 w-4" />
             Download Resume
@@ -480,12 +491,20 @@ const Header = ({
               </a>
             ))}
             <div className="flex flex-col gap-2 pt-3">
-              <Button variant="secondary" size="sm" onClick={onLogin}>
-                Login
-              </Button>
-              <Button variant="secondary" size="sm" onClick={onSignup}>
-                Sign Up
-              </Button>
+              {user ? (
+                <Button variant="secondary" size="sm" onClick={logout}>
+                  Logout
+                </Button>
+              ) : (
+                <>
+                  <Button variant="secondary" size="sm" onClick={onLogin}>
+                    Login
+                  </Button>
+                  <Button variant="secondary" size="sm" onClick={onSignup}>
+                    Sign Up
+                  </Button>
+                </>
+              )}
               <Button variant="primary" size="sm">
                 <Icon name="download" className="h-4 w-4" />
                 Download Resume
@@ -568,10 +587,8 @@ const DashboardPreview = () => {
           </div>
           <div className="mt-6 space-y-5">
             {isLoading ? (
-              <div className="animate-pulse space-y-4">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="h-4 bg-secondary rounded w-full" />
-                ))}
+              <div className="py-4 text-center text-sm text-muted-foreground">
+                Loading posture data...
               </div>
             ) : (
               posture?.map((p) => (
@@ -605,12 +622,9 @@ const Metrics = () => {
     <section className="border-y border-border bg-card/30">
       <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:grid-cols-2 sm:px-6 lg:grid-cols-4 lg:px-8">
         {isLoading ? (
-          [1, 2, 3, 4].map((i) => (
-            <div key={i} className="animate-pulse text-center sm:text-left">
-              <div className="h-8 bg-secondary rounded w-16 mb-2 mx-auto sm:mx-0" />
-              <div className="h-4 bg-secondary rounded w-24 mx-auto sm:mx-0" />
-            </div>
-          ))
+          <div className="col-span-full py-4 text-center text-sm text-muted-foreground">
+            Loading metrics...
+          </div>
         ) : (
           metrics?.map((m) => (
             <div key={m.id} className="text-center sm:text-left">
@@ -629,7 +643,8 @@ const Projects = () => {
   const { data: projects, isLoading } = useProjects();
 
   const filtered = useMemo(
-    () => (active === "All" ? projects : projects?.filter((p) => p.category === active)),
+    () =>
+      active === "All" ? projects : projects?.filter((p: Project) => p.category === active),
     [active, projects],
   );
 
@@ -657,13 +672,11 @@ const Projects = () => {
       </div>
       <div className="grid gap-6 md:grid-cols-2">
         {isLoading ? (
-          [1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-64 animate-pulse bg-secondary rounded-2xl" />
-          ))
+          <div className="col-span-full py-20 text-center text-sm text-muted-foreground">
+            Loading projects...
+          </div>
         ) : (
-          filtered?.map((p) => (
-            <ProjectCard key={p.id} project={p} />
-          ))
+          filtered?.map((p: Project) => <ProjectCard key={p.id} project={p} />)
         )}
       </div>
     </section>

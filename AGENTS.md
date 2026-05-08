@@ -11,4 +11,4 @@ Useful Commands
     # Run Python files
     uv run python <PYTHON-FILE>
 
-    regularly commit code to git
+regularly commit code to git

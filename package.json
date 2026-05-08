@@ -1,0 +1,14 @@
+{
+  "name": "clue-bdi-portfolio",
+  "version": "1.0.0",
+  "description": "Fullstack Portfolio: FastAPI Backend + Vite/React Frontend",
+  "scripts": {
+    "install-all": "npm install --prefix frontend && cd backend && uv sync",
+    "backend": "cd backend && make run",
+    "frontend": "npm run dev --prefix frontend",
+    "dev": "concurrently -n \"BACKEND,FRONTEND\" -c \"magenta,cyan\" \"npm run backend\" \"npm run frontend\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
