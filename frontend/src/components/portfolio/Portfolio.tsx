@@ -1,4 +1,7 @@
 import { FormEvent, ReactNode, useEffect, useMemo, useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useProjects, useMetrics, usePosture } from "@/hooks/use-portfolio-data";
+import { Project, Category } from "@/types/api";
 
 /* ---------------- Data ---------------- */
 
@@ -12,80 +15,13 @@ const NAV_ITEMS = [
 
 const SKILLS = ["AWS", "Kubernetes", "Terraform", "GitLab CI", "Python", "BigQuery"];
 
-const METRICS = [
-  { value: "6+", label: "Security tools integrated" },
-  { value: "3", label: "Cloud platforms demonstrated" },
-  { value: "4", label: "Portfolio-ready projects" },
-  { value: "Cloud · Data · Security", label: "Focus areas" },
-];
+// Metrics and Projects are now fetched from the backend
+
+// Types are now imported from @/types/api
 
 const CATEGORIES = ["All", "DevSecOps", "Data Engineering", "Cloud"] as const;
-type Category = (typeof CATEGORIES)[number];
 
-type Project = {
-  title: string;
-  category: Exclude<Category, "All">;
-  status: string;
-  description: string;
-  tags: string[];
-  links: { label: string; href: string }[];
-};
-
-const PROJECTS: Project[] = [
-  {
-    title: "PipelineGuard",
-    category: "DevSecOps",
-    status: "Featured",
-    description:
-      "CI/CD security scanning and analytics platform that normalizes findings from Trivy, Checkov, Semgrep, and Gitleaks.",
-    tags: ["GitLab CI", "Trivy", "Checkov", "BigQuery", "Looker"],
-    links: [
-      { label: "Demo", href: "#" },
-      { label: "Repo", href: "#" },
-      { label: "Dashboard", href: "#" },
-    ],
-  },
-  {
-    title: "Blue/Green Security Patch Demo",
-    category: "Cloud",
-    status: "Live Demo",
-    description:
-      "Safe vulnerable-to-patched deployment scenario showing measurable vulnerability reduction across cloud environments.",
-    tags: ["AWS", "Azure", "GCP", "Kubernetes", "Terraform"],
-    links: [
-      { label: "Architecture", href: "#" },
-      { label: "Runbook", href: "#" },
-      { label: "Metrics", href: "#" },
-    ],
-  },
-  {
-    title: "Data Engineering Zoomcamp Lab",
-    category: "Data Engineering",
-    status: "Case Study",
-    description:
-      "End-to-end ETL workflows using Docker, Terraform, Kestra, PostgreSQL, GCS, and BigQuery analytics.",
-    tags: ["Docker", "Kestra", "Terraform", "BigQuery", "SQL"],
-    links: [
-      { label: "Writeup", href: "#" },
-      { label: "Repo", href: "#" },
-      { label: "Queries", href: "#" },
-    ],
-  },
-  {
-    title: "Cloud Data Pipeline Automation",
-    category: "Data Engineering",
-    status: "Prototype",
-    description:
-      "Secure ingestion and analytics workflow using identity-aware access, automated processing, and dashboard visualization.",
-    tags: ["Python", "Dash", "S3", "Keycloak", "Superset"],
-    links: [
-      { label: "Overview", href: "#" },
-      { label: "Diagram", href: "#" },
-      { label: "Dashboard", href: "#" },
-    ],
-  },
-];
-
+// Hardcoded data for items not in the backend
 const ARCH_STEPS = [
   { title: "Commit", text: "Developer pushes code" },
   { title: "CI/CD", text: "Scan, build, deploy" },
@@ -110,12 +46,6 @@ const DEMO_CHECKLIST = [
   "Dashboard: vulnerability count reduced",
 ];
 
-const POSTURE = [
-  { label: "Secrets detected", note: "Reduced", value: 86 },
-  { label: "IaC misconfigurations", note: "Reduced", value: 72 },
-  { label: "Container findings", note: "Tracked", value: 100 },
-];
-
 const ACCOUNT_TYPES = [
   "Recruiter / Hiring Manager",
   "Collaborator",
@@ -123,24 +53,7 @@ const ACCOUNT_TYPES = [
   "Client / Partner",
 ];
 
-/* ---------------- Validation ---------------- */
-
-console.assert(PROJECTS.length >= 4, "At least 4 projects exist");
-console.assert(METRICS.length === 4, "Metrics length is 4");
-console.assert(CATEGORIES.includes("All"), "Categories include All");
-CATEGORIES.filter((c) => c !== "All").forEach((c) =>
-  console.assert(
-    PROJECTS.some((p) => p.category === c),
-    `Category ${c} has at least one project`,
-  ),
-);
-PROJECTS.forEach((p) =>
-  console.assert(
-    !!p.title && !!p.description && p.tags.length > 0 && p.links.length > 0,
-    `Project ${p.title} has title, description, tags, links`,
-  ),
-);
-
+// Assertions removed as they rely on static data
 /* ---------------- Icons (inline SVG) ---------------- */
 
 const Icon = ({ name, className = "h-4 w-4" }: { name: string; className?: string }) => {
@@ -340,6 +253,13 @@ const AuthModal = ({
   onClose: () => void;
 }) => {
   const [tab, setTab] = useState<"login" | "signup">(initialTab);
+  const { login, register } = useAuth();
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+    fullName: "",
+    accountType: ACCOUNT_TYPES[0],
+  });
 
   useEffect(() => {
     if (open) setTab(initialTab);
@@ -353,9 +273,23 @@ const AuthModal = ({
 
   if (!open) return null;
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    onClose();
+    try {
+      if (tab === "login") {
+        await login({ email: formData.email, password: formData.password });
+      } else {
+        await register({
+          email: formData.email,
+          password: formData.password,
+          fullName: formData.fullName,
+          accountType: formData.accountType,
+        });
+      }
+      onClose();
+    } catch (err) {
+      // Error handled in AuthContext
+    }
   };
 
   const inputClass =
@@ -407,27 +341,51 @@ const AuthModal = ({
               <label className="mb-1 block text-xs font-medium text-muted-foreground">
                 Full name
               </label>
-              <input className={inputClass} placeholder="Jane Doe" required />
+              <input
+                className={inputClass}
+                placeholder="Jane Doe"
+                required
+                value={formData.fullName}
+                onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+              />
             </div>
           )}
           <div>
             <label className="mb-1 block text-xs font-medium text-muted-foreground">
               Email
             </label>
-            <input type="email" className={inputClass} placeholder="you@company.com" required />
+            <input
+              type="email"
+              className={inputClass}
+              placeholder="you@company.com"
+              required
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+            />
           </div>
           <div>
             <label className="mb-1 block text-xs font-medium text-muted-foreground">
               Password
             </label>
-            <input type="password" className={inputClass} placeholder="••••••••" required />
+            <input
+              type="password"
+              className={inputClass}
+              placeholder="••••••••"
+              required
+              value={formData.password}
+              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+            />
           </div>
           {tab === "signup" && (
             <div>
               <label className="mb-1 block text-xs font-medium text-muted-foreground">
                 Account type
               </label>
-              <select className={inputClass} defaultValue={ACCOUNT_TYPES[0]}>
+              <select
+                className={inputClass}
+                value={formData.accountType}
+                onChange={(e) => setFormData({ ...formData, accountType: e.target.value })}
+              >
                 {ACCOUNT_TYPES.map((a) => (
                   <option key={a} value={a} className="bg-card">
                     {a}
@@ -442,8 +400,7 @@ const AuthModal = ({
         </form>
 
         <p className="mt-4 text-center text-[11px] leading-relaxed text-muted-foreground">
-          Frontend-only UI demo. Connect to Firebase, Cognito, Auth0, Supabase, or a custom backend
-          for production.
+          Connected to CLUE BDI API. Enter your credentials to access the portfolio dashboard.
         </p>
       </div>
     </div>
@@ -582,72 +539,100 @@ const Hero = ({ onCreateAccount }: { onCreateAccount: () => void }) => (
   </section>
 );
 
-const DashboardPreview = () => (
-  <div className="relative">
-    <div className="absolute -inset-4 rounded-3xl bg-primary/10 blur-3xl" />
-    <div className="relative overflow-hidden rounded-2xl border border-border bg-card shadow-card">
-      <div className="flex items-center gap-2 border-b border-border bg-secondary/40 px-4 py-3">
-        <span className="h-3 w-3 rounded-full bg-destructive/70" />
-        <span className="h-3 w-3 rounded-full bg-yellow-500/70" />
-        <span className="h-3 w-3 rounded-full bg-emerald-500/70" />
-        <div className="ml-3 flex-1 truncate rounded-md bg-background/60 px-3 py-1 text-xs text-muted-foreground">
-          cluebdi.io / dashboard / security
-        </div>
-      </div>
-      <div className="p-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="text-xs uppercase tracking-wider text-muted-foreground">
-              Security posture
-            </div>
-            <div className="mt-1 text-2xl font-semibold">Improving</div>
-          </div>
-          <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-400">
-            ▲ 24% this quarter
-          </span>
-        </div>
-        <div className="mt-6 space-y-5">
-          {POSTURE.map((p) => (
-            <div key={p.label}>
-              <div className="mb-1.5 flex items-center justify-between text-sm">
-                <span className="font-medium">{p.label}</span>
-                <span className="text-muted-foreground">
-                  {p.note} — {p.value}%
-                </span>
-              </div>
-              <div className="h-2 overflow-hidden rounded-full bg-secondary">
-                <div
-                  className="h-full rounded-full bg-primary-gradient"
-                  style={{ width: `${p.value}%` }}
-                />
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  </div>
-);
+const DashboardPreview = () => {
+  const { data: posture, isLoading } = usePosture();
 
-const Metrics = () => (
-  <section className="border-y border-border bg-card/30">
-    <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:grid-cols-2 sm:px-6 lg:grid-cols-4 lg:px-8">
-      {METRICS.map((m) => (
-        <div key={m.label} className="text-center sm:text-left">
-          <div className="text-2xl font-bold text-primary-gradient sm:text-3xl">{m.value}</div>
-          <div className="mt-1 text-sm text-muted-foreground">{m.label}</div>
+  return (
+    <div className="relative">
+      <div className="absolute -inset-4 rounded-3xl bg-primary/10 blur-3xl" />
+      <div className="relative overflow-hidden rounded-2xl border border-border bg-card shadow-card">
+        <div className="flex items-center gap-2 border-b border-border bg-secondary/40 px-4 py-3">
+          <span className="h-3 w-3 rounded-full bg-destructive/70" />
+          <span className="h-3 w-3 rounded-full bg-yellow-500/70" />
+          <span className="h-3 w-3 rounded-full bg-emerald-500/70" />
+          <div className="ml-3 flex-1 truncate rounded-md bg-background/60 px-3 py-1 text-xs text-muted-foreground">
+            cluebdi.io / dashboard / security
+          </div>
         </div>
-      ))}
+        <div className="p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="text-xs uppercase tracking-wider text-muted-foreground">
+                Security posture
+              </div>
+              <div className="mt-1 text-2xl font-semibold">Improving</div>
+            </div>
+            <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-400">
+              ▲ 24% this quarter
+            </span>
+          </div>
+          <div className="mt-6 space-y-5">
+            {isLoading ? (
+              <div className="animate-pulse space-y-4">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="h-4 bg-secondary rounded w-full" />
+                ))}
+              </div>
+            ) : (
+              posture?.map((p) => (
+                <div key={p.id}>
+                  <div className="mb-1.5 flex items-center justify-between text-sm">
+                    <span className="font-medium">{p.label}</span>
+                    <span className="text-muted-foreground">
+                      {p.note} — {p.value}%
+                    </span>
+                  </div>
+                  <div className="h-2 overflow-hidden rounded-full bg-secondary">
+                    <div
+                      className="h-full rounded-full bg-primary-gradient"
+                      style={{ width: `${p.value}%` }}
+                    />
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      </div>
     </div>
-  </section>
-);
+  );
+};
+
+const Metrics = () => {
+  const { data: metrics, isLoading } = useMetrics();
+
+  return (
+    <section className="border-y border-border bg-card/30">
+      <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:grid-cols-2 sm:px-6 lg:grid-cols-4 lg:px-8">
+        {isLoading ? (
+          [1, 2, 3, 4].map((i) => (
+            <div key={i} className="animate-pulse text-center sm:text-left">
+              <div className="h-8 bg-secondary rounded w-16 mb-2 mx-auto sm:mx-0" />
+              <div className="h-4 bg-secondary rounded w-24 mx-auto sm:mx-0" />
+            </div>
+          ))
+        ) : (
+          metrics?.map((m) => (
+            <div key={m.id} className="text-center sm:text-left">
+              <div className="text-2xl font-bold text-primary-gradient sm:text-3xl">{m.value}</div>
+              <div className="mt-1 text-sm text-muted-foreground">{m.label}</div>
+            </div>
+          ))
+        )}
+      </div>
+    </section>
+  );
+};
 
 const Projects = () => {
-  const [active, setActive] = useState<Category>("All");
+  const [active, setActive] = useState<Category | "All">("All");
+  const { data: projects, isLoading } = useProjects();
+
   const filtered = useMemo(
-    () => (active === "All" ? PROJECTS : PROJECTS.filter((p) => p.category === active)),
-    [active],
+    () => (active === "All" ? projects : projects?.filter((p) => p.category === active)),
+    [active, projects],
   );
+
   return (
     <section id="projects" className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
       <SectionHeading
@@ -671,9 +656,15 @@ const Projects = () => {
         ))}
       </div>
       <div className="grid gap-6 md:grid-cols-2">
-        {filtered.map((p) => (
-          <ProjectCard key={p.title} project={p} />
-        ))}
+        {isLoading ? (
+          [1, 2, 3, 4].map((i) => (
+            <div key={i} className="h-64 animate-pulse bg-secondary rounded-2xl" />
+          ))
+        ) : (
+          filtered?.map((p) => (
+            <ProjectCard key={p.id} project={p} />
+          ))
+        )}
       </div>
     </section>
   );
