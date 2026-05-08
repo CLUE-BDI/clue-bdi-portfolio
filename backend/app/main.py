@@ -1,13 +1,17 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from contextlib import asynccontextmanager
 from .routers import auth, projects, metrics, posture, admin
 from .init_db import init_db
 
-app = FastAPI(title="CLUE BDI Portfolio API", version="1.0.0")
-
-@app.on_event("startup")
-async def startup_event():
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup: Initialize and seed database
     init_db()
+    yield
+    # Shutdown logic (if any) goes here
+
+app = FastAPI(title="CLUE BDI Portfolio API", version="1.0.0", lifespan=lifespan)
 
 # Enable CORS
 app.add_middleware(

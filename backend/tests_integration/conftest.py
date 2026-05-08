@@ -14,12 +14,10 @@ TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engin
 
 @pytest.fixture(scope="module")
 def db():
-    # Create the database and tables
-    Base.metadata.create_all(bind=engine)
+    # Initialize and seed the test database
+    init_db(engine)
     db = TestingSessionLocal()
     try:
-        # We don't seed here manually because we want to test the full flow
-        # but we could call init_db(db) if we wanted a pre-seeded state.
         yield db
     finally:
         db.close()

@@ -1,13 +1,19 @@
-from sqlalchemy.orm import Session
-from .database import engine, Base, SessionLocal
+from sqlalchemy.orm import Session, sessionmaker
+from .database import engine as default_engine, Base, SessionLocal
 from .db_models import User, Project, Metric, Posture
 from .mock_db import PROJECTS, METRICS, POSTURE, USERS
 from .security import get_password_hash
 
-def init_db():
+def init_db(engine=None):
+    if engine is None:
+        engine = default_engine
+        
     Base.metadata.create_all(bind=engine)
     
-    db = SessionLocal()
+    # Create a session for the specific engine
+    SessionLocalCustom = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+    db = SessionLocalCustom()
+    
     try:
         # Seed Users
         if db.query(User).count() == 0:
