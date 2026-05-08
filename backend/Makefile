@@ -19,6 +19,10 @@ test:
 lint:
 	uv run python -m compileall .
 
+# Run integration tests
+test-integration:
+	PYTHONPATH=. uv run pytest tests_integration
+
 # Clean up cache files
 clean:
 	find . -type d -name "__pycache__" -exec rm -rf {} +

@@ -15,6 +15,10 @@ backend:
 frontend:
 	cd frontend && npm run dev
 
+# Run integration tests
+test-integration:
+	cd backend && PYTHONPATH=. uv run pytest tests_integration
+
 # Install all dependencies
 install:
 	npm install
