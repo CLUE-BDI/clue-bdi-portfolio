@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from ..models import RegisterRequest, LoginRequest, AuthResponse, UserProfile
 from ..db_models import User
 from ..database import get_db
+from ..security import get_password_hash, verify_password
 import uuid
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -16,7 +17,7 @@ async def register(request: RegisterRequest, db: Session = Depends(get_db)):
     new_user = User(
         id=str(uuid.uuid4()),
         email=request.email,
-        password=request.password,
+        password=get_password_hash(request.password),
         fullName=request.fullName,
         accountType=request.accountType or "User"
     )
@@ -37,7 +38,7 @@ async def register(request: RegisterRequest, db: Session = Depends(get_db)):
 @router.post("/login", response_model=AuthResponse)
 async def login(request: LoginRequest, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == request.email).first()
-    if not user or user.password != request.password:
+    if not user or not verify_password(request.password, user.password):
         raise HTTPException(status_code=401, detail="Invalid credentials")
     
     return AuthResponse(

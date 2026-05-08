@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 from .database import engine, Base, SessionLocal
 from .db_models import User, Project, Metric, Posture
 from .mock_db import PROJECTS, METRICS, POSTURE, USERS
+from .security import get_password_hash
 
 def init_db():
     Base.metadata.create_all(bind=engine)
@@ -11,7 +12,9 @@ def init_db():
         # Seed Users
         if db.query(User).count() == 0:
             for email, user_data in USERS.items():
-                user = User(**user_data)
+                data = user_data.copy()
+                data["password"] = get_password_hash(data["password"])
+                user = User(**data)
                 db.add(user)
         
         # Seed Projects

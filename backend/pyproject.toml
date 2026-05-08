@@ -13,4 +13,5 @@ dependencies = [
     "email-validator",
     "sqlalchemy",
     "psycopg2-binary",
+    "passlib[bcrypt]",
 ]

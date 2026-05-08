@@ -7,6 +7,7 @@ from app.database import Base, get_db
 
 from app.db_models import User, Project, Metric, Posture
 from app.mock_db import PROJECTS, METRICS, POSTURE, USERS
+from app.security import get_password_hash
 
 # Use an in-memory SQLite database for testing
 SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
@@ -22,7 +23,9 @@ def db():
     try:
         # Seed test data
         for email, user_data in USERS.items():
-            db.add(User(**user_data))
+            data = user_data.copy()
+            data["password"] = get_password_hash(data["password"])
+            db.add(User(**data))
         for project_data in PROJECTS:
             db.add(Project(**project_data))
         for metric_data in METRICS:
