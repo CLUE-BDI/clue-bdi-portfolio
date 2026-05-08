@@ -22,3 +22,15 @@ def test_get_users():
     assert "fullName" in admin
     assert "accountType" in admin
     assert admin["accountType"] == "Staff"
+
+def test_login_returns_account_type():
+    login_data = {
+        "email": "admin@cluebdi.com",
+        "password": "password123"
+    }
+    response = client.post("/api/v1/auth/login", json=login_data)
+    assert response.status_code == 200
+    data = response.json()
+    assert "user" in data
+    assert "accountType" in data["user"]
+    assert data["user"]["accountType"] == "Staff"

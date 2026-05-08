@@ -19,7 +19,12 @@ async def register(request: RegisterRequest):
     
     return AuthResponse(
         token="mock-jwt-token",
-        user=UserProfile(id=new_user["id"], email=new_user["email"], fullName=new_user["fullName"])
+        user=UserProfile(
+            id=new_user["id"], 
+            email=new_user["email"], 
+            fullName=new_user["fullName"],
+            accountType=new_user.get("accountType")
+        )
     )
 
 @router.post("/login", response_model=AuthResponse)
@@ -30,5 +35,10 @@ async def login(request: LoginRequest):
     
     return AuthResponse(
         token="mock-jwt-token",
-        user=UserProfile(id=user["id"], email=user["email"], fullName=user.get("fullName"))
+        user=UserProfile(
+            id=user["id"], 
+            email=user["email"], 
+            fullName=user.get("fullName"),
+            accountType=user.get("accountType")
+        )
     )
