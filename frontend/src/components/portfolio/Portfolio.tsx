@@ -2,6 +2,7 @@ import { FormEvent, ReactNode, useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProjects, useMetrics, usePosture } from "@/hooks/usePortfolio";
 import { Project, Metric, Posture, Category } from "@/types";
+import { Link } from "react-router-dom";
 
 /* ---------------- Data ---------------- */
 
@@ -445,6 +446,11 @@ const Header = ({
         <div className="hidden items-center gap-2 md:flex">
           {user ? (
             <>
+              {user.accountType === "Staff" && (
+                <Link to="/admin" className="mr-2 text-sm font-medium text-primary hover:underline">
+                  Admin
+                </Link>
+              )}
               <span className="mr-2 text-sm font-medium text-muted-foreground">
                 Hi, {user.fullName || user.email.split("@")[0]}
               </span>

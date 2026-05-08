@@ -21,6 +21,7 @@ class UserProfile(BaseModel):
     id: str
     email: EmailStr
     fullName: Optional[str] = None
+    accountType: Optional[str] = None
 
 class AuthResponse(BaseModel):
     token: str

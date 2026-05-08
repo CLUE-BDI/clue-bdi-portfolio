@@ -132,4 +132,7 @@ class MockDB:
     def get_user_by_email(self, email: str):
         return USERS.get(email)
 
+    def get_all_users(self):
+        return list(USERS.values())
+
 db = MockDB()
