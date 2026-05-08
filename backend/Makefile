@@ -11,9 +11,9 @@ install:
 run:
 	uv run uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
-# Run tests using pytest
+# Run unit tests
 test:
-	uv run pytest
+	PYTHONPATH=. uv run pytest tests
 
 # Basic syntax check
 lint:
@@ -22,6 +22,10 @@ lint:
 # Run integration tests
 test-integration:
 	PYTHONPATH=. uv run pytest tests_integration
+
+# Run all tests
+test-all:
+	PYTHONPATH=. uv run pytest tests tests_integration
 
 # Clean up cache files
 clean:
