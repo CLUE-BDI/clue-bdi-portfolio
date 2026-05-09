@@ -5,7 +5,7 @@ all: dev
 
 # ── Docker Compose (production-like) ──────────────────────────────────────────
 
-# Build and start all containers (Postgres + FastAPI + Nginx/React)
+# Build and start all containers (Postgres + Unified FastAPI/React App)
 up:
 	docker compose up --build
 
