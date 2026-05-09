@@ -1,7 +1,35 @@
-.PHONY: dev backend frontend install
+.PHONY: dev backend frontend install up down logs ps
 
 # Default target
 all: dev
+
+# ── Docker Compose (production-like) ──────────────────────────────────────────
+
+# Build and start all containers (Postgres + FastAPI + Nginx/React)
+up:
+	docker compose up --build
+
+# Start in detached mode
+up-d:
+	docker compose up --build -d
+
+# Stop and remove containers (keeps the postgres_data volume)
+down:
+	docker compose down
+
+# Stop and remove containers AND wipe the database volume
+down-v:
+	docker compose down -v
+
+# Tail logs from all services
+logs:
+	docker compose logs -f
+
+# Show running container status
+ps:
+	docker compose ps
+
+# ── Local Development (no Docker) ─────────────────────────────────────────────
 
 # Run both frontend and backend using concurrently
 dev:
