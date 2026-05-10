@@ -30,5 +30,5 @@ COPY --from=frontend-builder /app/frontend/dist /app/static
 
 EXPOSE 8000
 
-# Run FastAPI, Uvicorn natively reads the PORT environment variable
-CMD ["uv", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0"]
+# Run FastAPI, supporting Cloud Run's dynamic PORT environment variable
+CMD ["sh", "-c", "uv run uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
