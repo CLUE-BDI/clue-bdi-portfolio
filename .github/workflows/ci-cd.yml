@@ -80,9 +80,9 @@ jobs:
     # Configure your Google Cloud environment variables here
     env:
       PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-      REGION: us-central1
-      GAR_LOCATION: us-central1-docker.pkg.dev
-      GAR_REPO: clue-bdi-portfolio-repo
+      REGION: us-east1
+      GAR_LOCATION: us-east1-docker.pkg.dev
+      GAR_REPO: clue-bdi-portfolio
       SERVICE_NAME: clue-bdi-portfolio
       
     steps:
