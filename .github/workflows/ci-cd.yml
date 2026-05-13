@@ -72,18 +72,43 @@ jobs:
         run: PYTHONPATH=. uv run pytest tests_integration
 
   deploy:
-    name: Deploy to Render
+    name: Deploy to Google Cloud Run
     needs: [test-frontend, test-backend-integration]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
+    
+    # Configure your Google Cloud environment variables here
+    env:
+      PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+      REGION: us-central1
+      GAR_LOCATION: us-central1-docker.pkg.dev
+      GAR_REPO: clue-bdi-portfolio-repo
+      SERVICE_NAME: clue-bdi-portfolio
+      
     steps:
-      - name: Trigger Deploy Hook
+      - uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker to use Artifact Registry
+        run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev
+
+      - name: Build and Push Docker Image
         run: |
-          if [ -z "${{ secrets.RENDER_DEPLOY_HOOK_URL }}" ]; then
-            echo "Error: RENDER_DEPLOY_HOOK_URL secret is missing in GitHub repository settings."
-            echo "Cannot trigger Render deployment."
-            exit 1
-          fi
-          echo "Triggering deployment on Render..."
-          curl -s -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL }}"
-          echo -e "\nDeploy triggered successfully!"
+          IMAGE="${{ env.GAR_LOCATION }}/${{ env.PROJECT_ID }}/${{ env.GAR_REPO }}/${{ env.SERVICE_NAME }}:${{ github.sha }}"
+          docker build -t $IMAGE .
+          docker push $IMAGE
+
+      - name: Deploy to Cloud Run
+        run: |
+          IMAGE="${{ env.GAR_LOCATION }}/${{ env.PROJECT_ID }}/${{ env.GAR_REPO }}/${{ env.SERVICE_NAME }}:${{ github.sha }}"
+          gcloud run deploy ${{ env.SERVICE_NAME }} \
+            --image $IMAGE \
+            --region ${{ env.REGION }} \
+            --allow-unauthenticated
