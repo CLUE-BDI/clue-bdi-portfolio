@@ -82,7 +82,7 @@ jobs:
       PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
       REGION: us-east1
       GAR_LOCATION: us-east1-docker.pkg.dev
-      GAR_REPO: clue-bdi-portfolio
+      GAR_REPO: cloud-run-source-deploy
       SERVICE_NAME: clue-bdi-portfolio
       
     steps:
