@@ -13,8 +13,7 @@ jobs:
     with:
       target_repo_name: 'clue-bdi-portfolio'
       target_repo_path: ${{ github.workspace }}
-    secrets:
-      GCP_SA_KEY_JSON: ${{ secrets.GCP_SA_KEY_JSON }}
+    secrets: inherit
 
   test-frontend:
     name: Frontend Tests
