@@ -12,7 +12,7 @@ jobs:
     uses: CLUE-BDI/pipelineguard/.github/workflows/action.yml@main
     with:
       target_repo_name: 'clue-bdi-portfolio'
-      target_repo_path: ${{ github.workspace }}/backend
+      target_repo_path: ${{ github.workspace }}
     secrets: inherit
 
   test-frontend:
