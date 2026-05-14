@@ -1,0 +1,15 @@
+name: Nightly PipelineGuard Scan
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # Runs at midnight UTC every day
+  workflow_dispatch: # Allows manual triggering from the GitHub Actions UI
+
+jobs:
+  call-pipelineguard:
+    uses: CLUE-BDI/pipelineguard/.github/workflows/action.yml@main
+    with:
+      target_repo_name: 'clue-bdi-portfolio'
+      target_repo_path: ${{ github.workspace }}
+    secrets:
+      GCP_SA_KEY_JSON: ${{ secrets.GCP_SA_KEY_JSON }}
