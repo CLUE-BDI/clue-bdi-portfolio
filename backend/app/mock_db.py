@@ -12,8 +12,8 @@ PROJECTS = [
         "tags": ["GitLab CI", "Trivy", "Checkov", "BigQuery", "Looker"],
         "links": [
             {"label": "Demo", "href": "#"},
-            {"label": "Repo", "href": "#"},
-            {"label": "Dashboard", "href": "#"}
+            {"label": "Repo", "href": "https://github.com/CLUE-BDI/pipelineguard"},
+            {"label": "Dashboard", "href": "https://datastudio.google.com/reporting/ff3831fe-285a-48bb-9083-e52df6721c00"}
         ]
     },
     {
