@@ -8,6 +8,7 @@ def init_db(engine=None):
     if engine is None:
         engine = default_engine
         
+    Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
     
     # Create a session for the specific engine
