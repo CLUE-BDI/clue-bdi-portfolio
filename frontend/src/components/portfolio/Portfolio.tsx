@@ -475,7 +475,7 @@ const Header = ({
               </Button>
             </>
           )}
-          <Button variant="primary" size="sm">
+          <Button variant="primary" size="sm" onClick={() => window.open("https://drive.google.com/file/d/1FzG-VEj5Qf6VUJmI0relWZMpTl4dr7FO/view?usp=sharing", "_blank")}>
             <Icon name="download" className="h-4 w-4" />
             Download Resume
           </Button>
@@ -518,7 +518,7 @@ const Header = ({
                   </Button>
                 </>
               )}
-              <Button variant="primary" size="sm">
+              <Button variant="primary" size="sm" onClick={() => window.open("https://drive.google.com/file/d/1FzG-VEj5Qf6VUJmI0relWZMpTl4dr7FO/view?usp=sharing", "_blank")}>
                 <Icon name="download" className="h-4 w-4" />
                 Download Resume
               </Button>
