@@ -230,7 +230,14 @@ const ProjectCard = ({ project }: { project: Project }) => (
     </div>
     <div className="mt-6 flex flex-wrap gap-2">
       {project.links.map((l, i) => (
-        <Button key={l.label} variant={i === 0 ? "outline" : "ghost"} size="sm">
+        <Button 
+          key={l.label} 
+          variant={i === 0 ? "outline" : "ghost"} 
+          size="sm"
+          onClick={() => {
+            if (l.href && l.href !== "#") window.open(l.href, "_blank");
+          }}
+        >
           {l.label}
           <Icon name="arrow" className="h-3.5 w-3.5" />
         </Button>
