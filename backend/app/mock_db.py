@@ -26,13 +26,24 @@ PROJECTS = [
         "links": [
             {"label": "Repo", "href": "https://github.com/CLUE-BDI/clue-bdi-portfolio"}
         ]
+    },
+    {
+        "id": "3",
+        "title": "Hantavirus Global Tracker",
+        "category": "Data Engineering",
+        "status": "Live Demo",
+        "description": "Containerized real-time SSR epidemiological surveillance platform that coordinates CDC, WHO, PAHO, and ECDC indicators.",
+        "tags": ["React 19", "Bun", "FastAPI", "PostgreSQL", "Docker Compose", "Leaflet"],
+        "links": [
+            {"label": "Repo", "href": "https://github.com/CLUE-BDI/global-tracker-spark"}
+        ]
     }
 ]
 
 METRICS = [
     {"id": "1", "value": "12+", "label": "Security tools integrated"},
     {"id": "2", "value": "5", "label": "Cloud platforms demonstrated"},
-    {"id": "3", "value": "2", "label": "Portfolio-ready projects"},
+    {"id": "3", "value": "3", "label": "Portfolio-ready projects"},
     {"id": "4", "value": "Cloud · Data · Security", "label": "Focus areas"},
     {"id": "5", "value": "100%", "label": "Infrastructure as Code"}
 ]
