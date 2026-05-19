@@ -705,7 +705,7 @@ const Demos = () => (
           title="Blue/Green deployment showcase"
           subtitle="A safe, fully reproducible scenario: a vulnerable blue version is deployed, scanned in CI/CD, then replaced with a patched green version. The dashboard shows measurable vulnerability reduction."
         />
-        <Button variant="primary" size="lg">
+        <Button variant="primary" size="lg" onClick={() => window.open("http://104.43.135.132", "_blank")}>
           <Icon name="play" />
           Launch the demo
         </Button>
