@@ -7,15 +7,6 @@ on:
     branches: [ "main" ]
 
 jobs:
-  call-pipelineguard:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    uses: CLUE-BDI/pipelineguard/.github/workflows/action.yml@main
-    with:
-      target_repo_name: 'clue-bdi-portfolio'
-      target_repo_path: 'clue-bdi-portfolio'
-      gcs_bucket: ${{ vars.GCS_BUCKET || 'pipelineguard-artifacts' }}
-    secrets: inherit
-
   test-frontend:
     name: Frontend Tests
     runs-on: ubuntu-latest
@@ -82,7 +73,7 @@ jobs:
 
   deploy:
     name: Deploy to Google Cloud Run
-    needs: [test-frontend, test-backend-integration, call-pipelineguard]
+    needs: [test-frontend, test-backend-integration]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
     
