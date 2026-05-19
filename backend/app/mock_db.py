@@ -37,13 +37,24 @@ PROJECTS = [
         "links": [
             {"label": "Repo", "href": "https://github.com/CLUE-BDI/global-tracker-spark"}
         ]
+    },
+    {
+        "id": "4",
+        "title": "Blue-Green API Gateway",
+        "category": "Cloud",
+        "status": "Live Demo",
+        "description": "High-performance OpenAPI compliant API gateway demonstrating blue-green deployment strategies.",
+        "tags": ["FastAPI", "OpenAPI", "Docker", "DevOps"],
+        "links": [
+            {"label": "Repo", "href": "https://github.com/CLUE-BDI/blue-green-gateway"}
+        ]
     }
 ]
 
 METRICS = [
     {"id": "1", "value": "12+", "label": "Security tools integrated"},
     {"id": "2", "value": "5", "label": "Cloud platforms demonstrated"},
-    {"id": "3", "value": "3", "label": "Portfolio-ready projects"},
+    {"id": "3", "value": "4", "label": "Portfolio-ready projects"},
     {"id": "4", "value": "Cloud · Data · Security", "label": "Focus areas"},
     {"id": "5", "value": "100%", "label": "Infrastructure as Code"}
 ]
