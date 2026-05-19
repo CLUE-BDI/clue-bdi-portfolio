@@ -799,19 +799,35 @@ const Contact = () => (
           center
         />
         <div className="flex flex-wrap justify-center gap-3">
-          <Button variant="primary" size="lg">
+          <Button 
+            variant="primary" 
+            size="lg"
+            onClick={() => window.open("https://www.linkedin.com", "_blank")}
+          >
             <Icon name="linkedin" />
             LinkedIn
           </Button>
-          <Button variant="secondary" size="lg">
+          <Button 
+            variant="secondary" 
+            size="lg"
+            onClick={() => window.open("https://github.com/CLUE-BDI", "_blank")}
+          >
             <Icon name="github" />
             GitHub
           </Button>
-          <Button variant="secondary" size="lg">
+          <Button 
+            variant="secondary" 
+            size="lg"
+            onClick={() => window.open("https://drive.google.com/file/d/1FzG-VEj5Qf6VUJmI0relWZMpTl4dr7FO/view?usp=sharing", "_blank")}
+          >
             <Icon name="download" />
             Resume
           </Button>
-          <Button variant="outline" size="lg">
+          <Button 
+            variant="outline" 
+            size="lg"
+            onClick={() => window.location.href = "mailto:jakirul@gmail.com"}
+          >
             <Icon name="mail" />
             Email
           </Button>
