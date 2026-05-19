@@ -802,7 +802,7 @@ const Contact = () => (
           <Button 
             variant="primary" 
             size="lg"
-            onClick={() => window.open("https://www.linkedin.com", "_blank")}
+            onClick={() => window.open("https://www.linkedin.com/in/mjhasan1", "_blank")}
           >
             <Icon name="linkedin" />
             LinkedIn
