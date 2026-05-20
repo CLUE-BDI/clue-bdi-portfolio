@@ -47,6 +47,7 @@ PROJECTS = [
         "description": "High-performance OpenAPI compliant API gateway demonstrating blue-green deployment strategies.",
         "tags": ["FastAPI", "OpenAPI", "Docker", "DevOps"],
         "links": [
+            {"label": "Demo", "href": "http://104.43.135.132"},
             {"label": "Repo", "href": "https://github.com/CLUE-BDI/blue-green-gateway"}
         ]
     }
