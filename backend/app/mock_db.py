@@ -35,6 +35,7 @@ PROJECTS = [
         "description": "Containerized real-time SSR epidemiological surveillance platform that coordinates CDC, WHO, PAHO, and ECDC indicators.",
         "tags": ["React 19", "Bun", "FastAPI", "PostgreSQL", "Docker Compose", "Leaflet"],
         "links": [
+            {"label": "Demo", "href": "http://global-tracker-alb-1323447542.us-east-1.elb.amazonaws.com"},
             {"label": "Repo", "href": "https://github.com/CLUE-BDI/global-tracker-spark"}
         ]
     },
