@@ -547,11 +547,11 @@ const Hero = ({ onCreateAccount }: { onCreateAccount: () => void }) => (
           deployment demos, and data intelligence dashboards built by CLUE BDI LLC.
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
-          <Button variant="primary" size="lg">
+          <Button variant="primary" size="lg" onClick={() => document.getElementById("projects")?.scrollIntoView({ behavior: "smooth" })}>
             View Projects
             <Icon name="arrow" />
           </Button>
-          <Button variant="secondary" size="lg">
+          <Button variant="secondary" size="lg" onClick={() => document.getElementById("demos")?.scrollIntoView({ behavior: "smooth" })}>
             <Icon name="play" className="h-4 w-4" />
             Explore Live Demos
           </Button>
