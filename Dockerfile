@@ -14,12 +14,15 @@ FROM python:3.12-slim
 # Install uv
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 
+# Create a non-root user
+RUN groupadd -r appgroup && useradd -r -g appgroup -d /app -s /sbin/nologin appuser
+
 WORKDIR /app
 
 # Copy dependency files first for layer caching
 COPY backend/pyproject.toml backend/uv.lock ./
 
-# Install dependencies into the system Python
+# Install dependencies
 RUN uv sync --frozen --no-dev
 
 # Copy application code
@@ -27,6 +30,11 @@ COPY backend ./
 
 # Copy built frontend files
 COPY --from=frontend-builder /app/frontend/dist /app/static
+
+# Set permissions for the non-root user
+RUN chown -R appuser:appgroup /app
+
+USER appuser
 
 EXPOSE 8000
 
