@@ -1,0 +1,2 @@
+# Ignore mock API key in vulnerable_demo.py history
+6746e5796b73aee8c77dc01fbec24b274bd118c3:backend/app/vulnerable_demo.py:generic-api-key:5
