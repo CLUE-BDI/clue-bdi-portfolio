@@ -1,21 +1,22 @@
 import sqlite3
 import os
+import subprocess
 
-# Hardcoded secret (Vulnerability: Insecure storage of sensitive information)
-API_KEY = "sk-1234567890abcdef1234567890abcdef"
+# Hardcoded secret resolved: Load from environment variable with a safe placeholder fallback
+API_KEY = os.getenv("DEMO_API_KEY", "DEMO_API_KEY_PLACEHOLDER")
 
 def get_user_data(username):
-    # SQL Injection (Vulnerability: Improper Neutralization of Special Elements used in an SQL Command)
+    # SQL Injection resolved: Use parameterized query
     conn = sqlite3.connect('example.db')
     cursor = conn.cursor()
-    query = f"SELECT * FROM users WHERE username = '{username}'"
-    print(f"Executing query: {query}")
-    cursor.execute(query)
+    query = "SELECT * FROM users WHERE username = ?"
+    print(f"Executing query: {query} with param {username}")
+    cursor.execute(query, (username,))
     return cursor.fetchall()
 
 def dangerous_execution(user_input):
-    # Command Injection (Vulnerability: Improper Neutralization of Special Elements used in an OS Command)
-    os.system(f"echo {user_input}")
+    # Command Injection resolved: Use subprocess.run without shell=True
+    subprocess.run(["echo", user_input], check=True)
 
 if __name__ == "__main__":
     # Test calls
