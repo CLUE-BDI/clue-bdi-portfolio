@@ -48,3 +48,28 @@ def test_login_invalid_credentials(client):
     }
     response = client.post("/api/v1/auth/login", json=login_data)
     assert response.status_code == 401
+
+def test_demo_requests(client):
+    # Submit a demo request
+    payload = {
+        "name": "Jane Recruiter",
+        "email": "recruiter@hiring.com",
+        "organization": "Top Talent Corp",
+        "project_title": "Veteran Vitality Assistant",
+        "message": "We would like to see a demo of this assistant."
+    }
+    response = client.post("/api/v1/demo-requests", json=payload)
+    assert response.status_code == 201
+    data = response.json()
+    assert "id" in data
+    assert data["name"] == payload["name"]
+    assert data["email"] == payload["email"]
+    assert data["project_title"] == payload["project_title"]
+
+    # Verify that admin can fetch it
+    admin_response = client.get("/api/v1/admin/demo-requests")
+    assert admin_response.status_code == 200
+    requests_list = admin_response.json()
+    assert len(requests_list) > 0
+    assert any(req["name"] == payload["name"] for req in requests_list)
+

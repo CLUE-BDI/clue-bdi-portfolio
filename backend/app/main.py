@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
-from .routers import auth, projects, metrics, posture, admin
+from .routers import auth, projects, metrics, posture, admin, demo_requests
 from .init_db import init_db
 import os
 from fastapi.responses import FileResponse, JSONResponse
@@ -30,6 +30,7 @@ app.include_router(projects.router, prefix="/api/v1")
 app.include_router(metrics.router, prefix="/api/v1")
 app.include_router(posture.router, prefix="/api/v1")
 app.include_router(admin.router, prefix="/api/v1")
+app.include_router(demo_requests.router, prefix="/api/v1")
 
 # Serve frontend static files
 static_dir = os.path.join(os.path.dirname(__file__), "..", "static")

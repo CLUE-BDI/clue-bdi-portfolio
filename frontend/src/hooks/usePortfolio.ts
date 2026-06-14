@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
-import { Project, Metric, Posture, UserProfile } from "@/types";
+import { Project, Metric, Posture, UserProfile, DemoRequest } from "@/types";
 
 export const useProjects = () => {
   return useQuery({
@@ -29,3 +29,11 @@ export const useUsers = () => {
     queryFn: () => api.get<UserProfile[]>("/admin/users"),
   });
 };
+
+export const useDemoRequests = () => {
+  return useQuery({
+    queryKey: ["demoRequests"],
+    queryFn: () => api.get<DemoRequest[]>("/admin/demo-requests"),
+  });
+};
+

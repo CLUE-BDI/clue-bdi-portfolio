@@ -3,6 +3,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useProjects, useMetrics, usePosture } from "@/hooks/usePortfolio";
 import { Project, Metric, Posture, Category } from "@/types";
 import { Link } from "react-router-dom";
+import { api } from "@/lib/api";
 
 /* ---------------- Data ---------------- */
 
@@ -211,7 +212,13 @@ const Button = ({
 
 /* ---------------- Project Card ---------------- */
 
-const ProjectCard = ({ project }: { project: Project }) => (
+const ProjectCard = ({ 
+  project, 
+  onRequestDemo 
+}: { 
+  project: Project; 
+  onRequestDemo: (title: string) => void; 
+}) => (
   <div className="group flex flex-col rounded-2xl border border-border bg-card/60 p-6 shadow-card backdrop-blur transition hover:border-primary/40 hover:shadow-glow">
     <div className="mb-4 flex items-center justify-between">
       <span className="text-xs font-semibold uppercase tracking-wider text-primary">
@@ -235,7 +242,11 @@ const ProjectCard = ({ project }: { project: Project }) => (
           variant={i === 0 ? "outline" : "ghost"} 
           size="sm"
           onClick={() => {
-            if (l.href && l.href !== "#") window.open(l.href, "_blank");
+            if (l.label === "Demo") {
+              onRequestDemo(project.title);
+            } else if (l.href && l.href !== "#") {
+              window.open(l.href, "_blank");
+            }
           }}
         >
           {l.label}
@@ -410,6 +421,172 @@ const AuthModal = ({
     </div>
   );
 };
+
+/* ---------------- Demo Request Modal ---------------- */
+
+const DemoRequestModal = ({
+  open,
+  projectTitle,
+  onClose,
+}: {
+  open: boolean;
+  projectTitle: string;
+  onClose: () => void;
+}) => {
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (open) {
+      setSuccess(false);
+      setError(null);
+    }
+  }, [open]);
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    if (open) document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, [open, onClose]);
+
+  if (!open) return null;
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+
+    const formData = new FormData(e.target as HTMLFormElement);
+    const name = formData.get("name") as string;
+    const email = formData.get("email") as string;
+    const organization = formData.get("organization") as string;
+    const message = formData.get("message") as string;
+
+    try {
+      await api.post("/demo-requests", {
+        name,
+        email,
+        organization,
+        project_title: projectTitle,
+        message,
+      });
+
+      const mailtoSubject = encodeURIComponent(`Demo Request: ${projectTitle}`);
+      const mailtoBody = encodeURIComponent(
+        `Hello,\n\nI would like to request a demo for "${projectTitle}".\n\nMy Details:\nName: ${name}\nEmail: ${email}\nOrganization: ${organization || "N/A"}\nMessage: ${message || "N/A"}\n\nThank you!`
+      );
+      window.location.href = `mailto:md.j.hasan@cluebdi.com?subject=${mailtoSubject}&body=${mailtoBody}`;
+
+      setSuccess(true);
+    } catch (err: any) {
+      setError(err.message || "An error occurred");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const inputClass =
+    "w-full rounded-lg border border-border bg-background/60 px-3 py-2 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary";
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 p-4 backdrop-blur"
+      onClick={onClose}
+    >
+      <div
+        className="relative w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-glow"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button
+          onClick={onClose}
+          className="absolute right-4 top-4 text-muted-foreground hover:text-foreground"
+          aria-label="Close"
+        >
+          <Icon name="close" className="h-5 w-5" />
+        </button>
+
+        {success ? (
+          <div className="text-center py-6">
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-400">
+              <Icon name="check" className="h-6 w-6" />
+            </div>
+            <h3 className="text-xl font-semibold text-foreground">Request Sent!</h3>
+            <p className="mt-2 text-sm text-muted-foreground bg-secondary/30 p-3 rounded-lg border border-border">
+              Your request for a demo of <strong>{projectTitle}</strong> has been logged. An email window was also opened to send the request directly to <strong>md.j.hasan@cluebdi.com</strong>.
+            </p>
+            <div className="mt-6">
+              <Button variant="secondary" size="md" onClick={onClose}>
+                Close
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <>
+            <div className="mb-6">
+              <h3 className="text-xl font-semibold animate-pulse">Request a Demo</h3>
+              <p className="mt-1 text-sm text-muted-foreground font-light">
+                Get a guided walkthrough of <strong>{projectTitle}</strong>.
+              </p>
+            </div>
+
+            {error && (
+              <div className="mb-4 rounded-lg bg-destructive/10 p-3 text-xs text-destructive">
+                {error}
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="mb-1 block text-xs font-semibold text-muted-foreground">
+                  Your Name
+                </label>
+                <input name="name" className={inputClass} placeholder="Jane Doe" required />
+              </div>
+              <div>
+                <label className="mb-1 block text-xs font-semibold text-muted-foreground">
+                  Email Address
+                </label>
+                <input
+                  name="email"
+                  type="email"
+                  className={inputClass}
+                  placeholder="you@company.com"
+                  required
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-xs font-semibold text-muted-foreground">
+                  Organization / Company
+                </label>
+                <input
+                  name="organization"
+                  className={inputClass}
+                  placeholder="ACME Corp"
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-xs font-semibold text-muted-foreground">
+                  Message (Optional)
+                </label>
+                <textarea
+                  name="message"
+                  rows={3}
+                  className={`${inputClass} resize-none`}
+                  placeholder="Any specific questions or focus areas for the demo?"
+                />
+              </div>
+              <Button type="submit" variant="primary" size="lg" className="w-full font-semibold shadow-glow py-3" onClick={() => {}}>
+                Send Request
+              </Button>
+            </form>
+          </>
+        )}
+      </div>
+    </div>
+  );
+};
+
 
 /* ---------------- Sections ---------------- */
 
@@ -651,7 +828,7 @@ const Metrics = () => {
   );
 };
 
-const Projects = () => {
+const Projects = ({ onRequestDemo }: { onRequestDemo: (title: string) => void }) => {
   const [active, setActive] = useState<Category | "All">("All");
   const { data: projects, isLoading } = useProjects();
 
@@ -689,14 +866,16 @@ const Projects = () => {
             Loading projects...
           </div>
         ) : (
-          filtered?.map((p: Project) => <ProjectCard key={p.id} project={p} />)
+          filtered?.map((p: Project) => (
+            <ProjectCard key={p.id} project={p} onRequestDemo={onRequestDemo} />
+          ))
         )}
       </div>
     </section>
   );
 };
 
-const Demos = () => (
+const Demos = ({ onRequestDemo }: { onRequestDemo: (title: string) => void }) => (
   <section id="demos" className="border-y border-border bg-card/30">
     <div className="mx-auto grid max-w-7xl gap-12 px-4 py-20 sm:px-6 lg:grid-cols-2 lg:px-8">
       <div>
@@ -705,9 +884,9 @@ const Demos = () => (
           title="Blue/Green deployment showcase"
           subtitle="A safe, fully reproducible scenario: a vulnerable blue version is deployed, scanned in CI/CD, then replaced with a patched green version. The dashboard shows measurable vulnerability reduction."
         />
-        <Button variant="primary" size="lg" onClick={() => window.open("http://104.43.135.132", "_blank")}>
+        <Button variant="primary" size="lg" onClick={() => onRequestDemo("Blue/Green Deployment Showcase")}>
           <Icon name="play" />
-          Launch the demo
+          Request a Demo
         </Button>
       </div>
       <div className="rounded-2xl border border-border bg-card p-8 shadow-card">
@@ -850,10 +1029,17 @@ const Footer = () => (
 export default function Portfolio() {
   const [authOpen, setAuthOpen] = useState(false);
   const [authTab, setAuthTab] = useState<"login" | "signup">("login");
+  const [demoRequestOpen, setDemoRequestOpen] = useState(false);
+  const [demoRequestProject, setDemoRequestProject] = useState("");
 
   const open = (tab: "login" | "signup") => {
     setAuthTab(tab);
     setAuthOpen(true);
+  };
+
+  const handleRequestDemo = (projectTitle: string) => {
+    setDemoRequestProject(projectTitle);
+    setDemoRequestOpen(true);
   };
 
   return (
@@ -862,14 +1048,19 @@ export default function Portfolio() {
       <main>
         <Hero onCreateAccount={() => open("signup")} />
         <Metrics />
-        <Projects />
-        <Demos />
+        <Projects onRequestDemo={handleRequestDemo} />
+        <Demos onRequestDemo={handleRequestDemo} />
         <Architecture />
         <TechTable />
         <Contact />
       </main>
       <Footer />
       <AuthModal open={authOpen} initialTab={authTab} onClose={() => setAuthOpen(false)} />
+      <DemoRequestModal
+        open={demoRequestOpen}
+        projectTitle={demoRequestProject}
+        onClose={() => setDemoRequestOpen(false)}
+      />
     </div>
   );
 }

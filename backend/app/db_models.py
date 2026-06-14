@@ -36,3 +36,14 @@ class Posture(Base):
     label = Column(String, nullable=False)
     note = Column(String, nullable=False)
     value = Column(Integer, nullable=False)
+
+class DemoRequest(Base):
+    __tablename__ = "demo_requests"
+
+    id = Column(String, primary_key=True, index=True)
+    name = Column(String, nullable=False)
+    email = Column(String, nullable=False)
+    organization = Column(String, nullable=True)
+    project_title = Column(String, nullable=False)
+    message = Column(String, nullable=True)
+

@@ -50,3 +50,19 @@ class Posture(BaseModel):
     label: str
     note: str
     value: int
+
+class DemoRequestCreate(BaseModel):
+    name: str
+    email: EmailStr
+    organization: Optional[str] = None
+    project_title: str
+    message: Optional[str] = None
+
+class DemoRequestResponse(BaseModel):
+    id: str
+    name: str
+    email: EmailStr
+    organization: Optional[str] = None
+    project_title: str
+    message: Optional[str] = None
+

@@ -39,3 +39,13 @@ export interface Posture {
   note: string;
   value: number;
 }
+
+export interface DemoRequest {
+  id: string;
+  name: string;
+  email: string;
+  organization?: string;
+  project_title: string;
+  message?: string;
+}
+

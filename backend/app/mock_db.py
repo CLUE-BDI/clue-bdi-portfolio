@@ -50,6 +50,18 @@ PROJECTS = [
             {"label": "Demo", "href": "http://104.43.135.132"},
             {"label": "Repo", "href": "https://github.com/CLUE-BDI/blue-green-gateway"}
         ]
+    },
+    {
+        "id": "5",
+        "title": "Veteran Vitality Assistant",
+        "category": "Data Engineering",
+        "status": "Live Demo",
+        "description": "An AI-powered assistant for military veterans to upload clinical documents, medical records, or VA benefit decision letters, extract structured text using Azure Document Intelligence, index them, and run query RAG pipelines.",
+        "tags": ["Python", "Azure Document Intelligence", "FastAPI", "Streamlit", "Ollama", "Docker"],
+        "links": [
+            {"label": "Demo", "href": "#"},
+            {"label": "Repo", "href": "https://github.com/CLUE-BDI/veteran-vitality-assistant"}
+        ]
     }
 ]
 
